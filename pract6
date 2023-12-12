@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+// Define the maximum number of characters in the input
+#define MAX_CHARACTERS 256
+// Define the Huffman node as a basic structure
+typedef struct {
+char data;
+unsigned int frequency;
+int left, right;
+} HuffmanNode;
+// Function to build the Huffman tree and return the root node
+int buildHuffmanTree(HuffmanNode nodes[], char data[], int frequency[], int size);
+// Function to print the Huffman codes for characters
+void printHuffmanCodes(HuffmanNode nodes[], int root, int arr[], int top);
+int main() {
+char data[] = { 'a', 'b', 'c', 'd', 'e', 'f' };
+int frequency[] = { 5, 9, 12, 13, 16, 45 };
+int size = sizeof(data) / sizeof(data[0]);
+HuffmanNode nodes[MAX_CHARACTERS * 2]; // Double the size for internal nodes
+for (int i = 0; i < MAX_CHARACTERS * 2; i++) {
+nodes[i].data = '\0';
+nodes[i].frequency = 0;
+nodes[i].left = nodes[i].right = -1;
+}
+int root = buildHuffmanTree(nodes, data, frequency, size);
+int arr[MAX_CHARACTERS], top = 0;
+printf("Huffman Codes:\n");
+printHuffmanCodes(nodes, root, arr, top);
+return 0;
+}
+// Function to build the Huffman tree using a greedy approach
+int buildHuffmanTree(HuffmanNode nodes[], char data[], int frequency[], int size) {
+int numNodes = 2 * size - 1;
+for (int i = 0; i < size; i++) {
+nodes[i].data = data[i];
+nodes[i].frequency = frequency[i];
+}
+for (int i = size; i < numNodes; i++) {
+int min1 = -1, min2 = -1;
+for (int j = 0; j < i; j++) {
+if (nodes[j].frequency && (min1 == -1 || nodes[j].frequency < nodes[min1].frequency)) {
+min2 = min1;
+min1 = j;
+} else if (nodes[j].frequency && (min2 == -1 || nodes[j].frequency < nodes[min2].frequency)) {
+min2 = j;
+}}
+nodes[i].frequency = nodes[min1].frequency + nodes[min2].frequency;
+nodes[i].left = min1;
+nodes[i].right = min2;
+nodes[min1].frequency = nodes[min2].frequency = 0;
+}
+return numNodes - 1; // Return the root node index
+}
+// Function to print the Huffman codes for characters
+void printHuffmanCodes(HuffmanNode nodes[], int root, int arr[], int top) {
+if (nodes[root].left != -1) {
+arr[top] = 0;
+printHuffmanCodes(nodes, nodes[root].left, arr, top + 1);
+}
+if (nodes[root].right != -1) {
+arr[top] = 1;
+printHuffmanCodes(nodes, nodes[root].right, arr, top + 1);
+}
+if (nodes[root].left == -1 && nodes[root].right == -1) {
+printf("%c: ", nodes[root].data);
+for (int i = 0; i < top; i++) {
+printf("%d", arr[i]);
+}
+printf("\n");
+}}
